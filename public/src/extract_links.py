@@ -2,6 +2,8 @@ import re
 
 
 def extract_markdown_images(text):
+    if not "![" in text:
+        return []
     check_bracket = re.findall(r"\[", text)
     if not check_bracket:
         raise ValueError("Missing Bracket in Alt Text: Invalid Markdown Format")
@@ -32,6 +34,8 @@ def extract_markdown_images(text):
 
 
 def extract_markdown_links(text):
+    if not "[" in text:
+        return []
     check_bracket = re.findall(r"\[", text)
     if not check_bracket:
         raise ValueError("Missing Bracket in Alt Text: Invalid Markdown Format")
