@@ -1,12 +1,30 @@
 import re
+import argparse
 from shutil import rmtree, copy
 from os import mkdir, listdir, makedirs
 from os.path import exists, isfile, join, dirname
 from markdown_blocks import markdown_to_html_node
 
+__version__ = "1.0"  # Program version
+
+parser = argparse.ArgumentParser(
+    prog="Static Site Generator",
+    description="Take markdown and convert to html.",
+    epilog="Send it.",
+)
+parser.add_argument(
+    "-b",
+    "--basepath",
+    help="Github Pages basepath, ex: github.io/REPO-NAME, REPO-NAME=basepath",
+    required=True,
+    type=str,
+)
+parser.add_argument("-V", "--version", action="version", version="%(prog)s 1.0")
+args = parser.parse_args()
+
 
 def main():
-    dst = "public/"
+    dst = "docs/"
     static_src = "static/"
     markdown_src = "content/"
     rmtree(dst, ignore_errors=True)
@@ -63,7 +81,13 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown)
     node = markdown_to_html_node(markdown)
     html = node.to_html()
-    updated_html = template.replace("{{ Title }}", title).replace("{{ Content }}", html)
+    basepath = args.basepath
+    updated_html = (
+        template.replace("{{ Title }}", title)
+        .replace("{{ Content }}", html)
+        .replace('href="/', f'href="{basepath}')
+        .replace('src="/', f'src="{basepath}')
+    )
     dir_path = dirname(dest_path)
     if dir_path:
         makedirs(dir_path, exist_ok=True)
